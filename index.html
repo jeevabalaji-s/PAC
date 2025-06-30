@@ -5,7 +5,27 @@
   <title>Pre-Anesthesia Checklist (PAC)</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+     <div class="section">
+  <h3>Patient Details</h3>
+
+  <label>Patient ID</label>
+  <input type="text" name="patientId" required>
+
+  <label>Full Name</label>
+  <input type="text" name="name" required>
+
+  <label>Age</label>
+  <input type="number" name="age" required>
+
+  <label>Gender</label>
+  <select name="gender" required>
+    <option value="">Select</option>
+    <option value="Male">Male</option>
+    <option value="Female">Female</option>
+    <option value="Other">Other</option>
+  </select>
+</div>
+ font-family: Arial, sans-serif;
       padding: 20px;
       background: #f0f0f0;
     }
@@ -186,6 +206,63 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
+  function savePatientData() {
+  const form = document.getElementById("pacForm");
+  const formData = new FormData(form);
+  const patientId = formData.get("patientId");
+
+  if (!patientId) {
+    alert("Please enter a Patient ID");
+    return;
+  }
+
+  const data = {};
+  formData.forEach((value, key) => {
+    if (data[key]) {
+      if (!Array.isArray(data[key])) data[key] = [data[key]];
+      data[key].push(value);
+    } else {
+      data[key] = value;
+    }
+  });
+
+  const existing = JSON.parse(localStorage.getItem("patients") || "{}");
+  existing[patientId] = data;
+  localStorage.setItem("patients", JSON.stringify(existing));
+  alert("Data saved for Patient ID: " + patientId);
+}
+
+function loadPatientData() {
+  const patientId = prompt("Enter Patient ID to load:");
+  if (!patientId) return;
+
+  const patients = JSON.parse(localStorage.getItem("patients") || "{}");
+  const data = patients[patientId];
+
+  if (!data) {
+    alert("No data found for Patient ID: " + patientId);
+    return;
+  }
+
+  const form = document.getElementById("pacForm");
+  Object.keys(data).forEach(key => {
+    const field = form.elements[key];
+    if (!field) return;
+    if (field.type === "checkbox" || field.type === "radio") {
+      if (Array.isArray(data[key])) {
+        Array.from(form.elements[key]).forEach(f => {
+          f.checked = data[key].includes(f.value);
+        });
+      } else {
+        field.checked = true;
+      }
+    } else {
+      field.value = data[key];
+    }
+  });
+  alert("Loaded data for Patient ID: " + patientId);
+}
+
   window.onload = function () {
     const downloadButton = document.querySelector('.btn');
     downloadButton.addEventListener('click', async () => {
