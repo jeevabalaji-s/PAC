@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Pre-Anesthesia Checklist (PAC)</title>
   <style>
     body {
@@ -20,22 +20,28 @@
       padding: 15px;
       margin-bottom: 20px;
       border-radius: 5px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
     }
     label {
       display: block;
       margin-top: 10px;
       font-weight: bold;
     }
-    textarea, input, select {
+    .checkbox-group label,
+    .radio-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: normal;
+    }
+    textarea,
+    input[type="text"],
+    input[type="number"],
+    select {
       width: 100%;
       padding: 6px;
       margin-top: 5px;
       border: 1px solid #ccc;
       border-radius: 4px;
-    }
-    .checkbox-group {
-      margin-left: 20px;
     }
     .btn {
       background-color: #004080;
@@ -53,40 +59,47 @@
 
   <h2>Pre-Anesthesia Checklist (PAC)</h2>
 
-  <!-- ? Patient Details section -->
-  <div class="section">
-    <h3>Patient Details</h3>
-
-    <label>Patient ID</label>
-    <input type="text" name="patientId" required>
-
-    <label>Full Name</label>
-    <input type="text" name="name" required>
-
-    <label>Age</label>
-    <input type="number" name="age" required>
-
-    <label>Gender</label>
-    <select name="gender" required>
-      <option value="">Select</option>
-      <option value="Male">Male</option>
-      <option value="Female">Female</option>
-      <option value="Other">Other</option>
-    </select>
-  </div>
-
-  <!-- ? Main Form -->
   <form id="pacForm">
+    <!-- Patient Details -->
+    <div class="section">
+      <h3>Patient Details</h3>
+      <label>Patient ID</label>
+      <input type="text" id="patientId" name="patientId" pattern="\d{6}" maxlength="6" required />
+      <small style="color: gray;">Patient ID must be exactly 6 digits</small>
 
+      <label>Full Name</label>
+      <input type="text" name="name" required />
+
+      <label>Age</label>
+      <input type="number" name="age" required />
+
+      <label>Gender</label>
+      <select name="gender" required>
+        <option value="">Select</option>
+        <option>Male</option>
+        <option>Female</option>
+        <option>Other</option>
+      </select>
+    </div>
+
+    <!-- Medical History -->
     <div class="section">
       <h3>Medical History</h3>
       <label>Past surgeries and anesthesia history</label>
-      <select name="surgeryHistory"><option>Choose an item...</option><option>No issues</option><option>Complications</option></select>
+      <select name="surgeryHistory">
+        <option>Choose an item...</option>
+        <option>No issues</option>
+        <option>Complications</option>
+      </select>
       <label>Remarks:</label>
       <textarea name="surgeryRemarks"></textarea>
 
       <label>Allergies</label>
-      <select name="allergies"><option>Choose an item...</option><option>None</option><option>Yes</option></select>
+      <select name="allergies">
+        <option>Choose an item...</option>
+        <option>None</option>
+        <option>Yes</option>
+      </select>
       <label>Remarks:</label>
       <textarea name="allergyRemarks"></textarea>
 
@@ -95,114 +108,195 @@
 
       <label>Chronic Illnesses:</label>
       <div class="checkbox-group">
-        <label><input type="checkbox" name="illnesses" value="Hypertension"> Hypertension</label>
-        <label><input type="checkbox" name="illnesses" value="Diabetes"> Diabetes</label>
-        <label><input type="checkbox" name="illnesses" value="Asthma / COPD"> Asthma / COPD</label>
-        <label><input type="checkbox" name="illnesses" value="Heart disease"> Heart disease</label>
-        <label><input type="checkbox" name="illnesses" value="Kidney disease"> Kidney disease</label>
-        <label><input type="checkbox" name="illnesses" value="Others"> Others: <input type="text" name="illnessOther" style="width: 50%;"></label>
+        <label><input type="checkbox" name="illnesses" value="Hypertension" /> Hypertension</label>
+        <label><input type="checkbox" name="illnesses" value="Diabetes" /> Diabetes</label>
+        <label><input type="checkbox" name="illnesses" value="Asthma / COPD" /> Asthma / COPD</label>
+        <label><input type="checkbox" name="illnesses" value="Heart disease" /> Heart disease</label>
+        <label><input type="checkbox" name="illnesses" value="Kidney disease" /> Kidney disease</label>
+        <label>Other illnesses:</label>
+        <textarea name="otherIllnesses"></textarea>
       </div>
     </div>
 
-    <!-- Additional form sections follow the same format -->
-    <!-- Only changed section IDs/names where relevant -->
-
+    <!-- Physical Examination -->
     <div class="section">
-      <h3>Fit for Anesthesia?</h3>
-      <div class="checkbox-group">
-        <label><input type="radio" name="fit" value="Yes"> Yes – Proceed</label>
-        <label><input type="radio" name="fit" value="No"> No – Needs further optimization</label>
-        <label>Reason (if not fit):</label><textarea name="fitReason"></textarea>
-      </div>
-      <label>Anesthesiologist Name & Signature:</label>
-      <input type="text" name="doctor">
-      <label>Date & Time:</label>
-      <input type="datetime-local" name="datetime">
+      <h3>Physical Examination</h3>
+      <label>Vital Signs</label>
+      <textarea name="Bp" placeholder="BP"></textarea>
+      <textarea name="HR" placeholder="HR"></textarea>
+      <textarea name="RR" placeholder="RR"></textarea>
+      <textarea name="TEMP" placeholder="TEMP"></textarea>
+
+      <label>Weight (kg)</label>
+      <input type="number" id="weight" name="weight" />
+
+      <label>Height (cm)</label>
+      <input type="number" id="height" name="height" />
+
+      <label>BMI</label>
+      <input type="text" id="bmi" name="bmi" readonly />
+      <small style="color: gray;">Auto-calculated</small>
+
+      <label>BMI Category</label>
+      <input type="text" id="bmiCategory" name="bmiCategory" readonly />
     </div>
 
-    <!-- ? Action Buttons -->
-    <button type="button" class="btn" onclick="generatePDF()">?? Download as PDF</button>
-    <button type="button" class="btn" onclick="savePatientData()">?? Save Patient Data</button>
-    <button type="button" class="btn" onclick="loadPatientData()">?? Load Patient Data</button>
+    <!-- Systemic Exam -->
+    <div class="section">
+      <h3>Systemic Exam</h3>
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="SystemicExam" value="Cardiovascular" /> Cardiovascular</label>
+        <label><input type="checkbox" name="SystemicExam" value="Respiratory" /> Respiratory</label>
+        <label><input type="checkbox" name="SystemicExam" value="CNS if Needed" /> CNS if Needed</label>
+      </div>
+      <label>Remarks:</label>
+      <textarea name="CNS"></textarea>
+    </div>
+ <div class="section">
+    <h3>Investigations</h3>
+    <div class="checkbox-group">
+      <label><input type="checkbox" name="investigations" value="Hemoglobin/CBC"> Hemoglobin/CBC</label>
+      <label><input type="checkbox" name="investigations" value="Blood Sugar"> Blood Sugar</label>
+      <label><input type="checkbox" name="investigations" value="Renal Function Test"> Renal Function Test</label>
+      <label><input type="checkbox" name="investigations" value="ECG"> ECG</label>
+      <label><input type="checkbox" name="investigations" value="Chest X-ray"> Chest X-ray</label>
+      <label>Others:</label>
+      <textarea name="otherInvestigations"></textarea>
+    </div>
+  </div>
+    <!-- ASA Classification -->
+    <div class="section">
+      <h3>ASA Classification</h3>
+      <div class="radio-group">
+        <label><input type="radio" name="ASA Classification" value="ASA I - Healthy" /> ASA I - Healthy</label>
+        <label><input type="radio" name="ASA Classification" value="ASA II - Mild systemic disease" /> ASA II - Mild systemic disease</label>
+        <label><input type="radio" name="ASA Classification" value="ASA III - Severe systemic disease" /> ASA III - Severe systemic disease</label>
+        <label><input type="radio" name="ASA Classification" value="ASA IV - Life-threatening disease" /> ASA IV - Life-threatening disease</label>
+        <label><input type="radio" name="ASA Classification" value="ASA V - Moribund patient" /> ASA V - Moribund patient</label>
+      </div>
+    </div>
+    
+     <div class="section">
+    <h3>Airway Assessment</h3>
 
+    <div class="checkbox-group">
+      <label><input type="checkbox" name="airway" value="Mouth opening > 3 cm"> Mouth opening > 3 cm</label>
+      <label><input type="checkbox" name="airway" value="Thyromental distance > 6 cm"> Thyromental distance > 6 cm</label>
+      <label><input type="checkbox" name="airway" value="Neck movement normal"> Neck movement normal</label>
+      <label><input type="checkbox" name="airway" value="No facial trauma/swelling"> No facial trauma/swelling</label>
+      <label><input type="checkbox" name="airway" value="Dentition checked"> Dentition checked</label>
+      <label><input type="checkbox" name="airway" value="History of difficult intubation"> History of difficult intubation</label>
+    </div>
+
+    <!-- Action Buttons -->
+    <button type="button" class="btn" onclick="generatePDF()">Download as PDF</button>
+    <button type="button" class="btn" onclick="savePatientData()">Save Patient Data</button>
+    <button type="button" class="btn" onclick="loadPatientData()">Load Patient Data</button>
   </form>
 
-<!-- ? Libraries -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<!-- ? JavaScript -->
-<script>
-  async function generatePDF() {
-    const form = document.getElementById("pacForm");
-    const canvas = await html2canvas(form, { scale: 2 });
-    const imageData = canvas.toDataURL("image/png");
+  <!-- Script -->
+  <script>
+    function calculateBMI() {
+      const weight = parseFloat(document.getElementById("weight").value);
+      const height = parseFloat(document.getElementById("height").value);
+      const bmiField = document.getElementById("bmi");
+      const categoryField = document.getElementById("bmiCategory");
 
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF("p", "mm", "a4");
-    const imgProps = pdf.getImageProperties(imageData);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-    pdf.addImage(imageData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save("pre-anesthesia-checklist.pdf");
-  }
-
-  function savePatientData() {
-    const form = document.getElementById("pacForm");
-    const formData = new FormData(form);
-    const patientId = formData.get("patientId");
-
-    if (!patientId) {
-      alert("Please enter a Patient ID");
-      return;
-    }
-
-    const data = {};
-    formData.forEach((value, key) => {
-      if (data[key]) {
-        if (!Array.isArray(data[key])) data[key] = [data[key]];
-        data[key].push(value);
-      } else {
-        data[key] = value;
+      if (!weight || !height || weight <= 0 || height <= 0) {
+        bmiField.value = "";
+        categoryField.value = "";
+        return;
       }
-    });
 
-    const existing = JSON.parse(localStorage.getItem("patients") || "{}");
-    existing[patientId] = data;
-    localStorage.setItem("patients", JSON.stringify(existing));
-    alert("? Data saved for Patient ID: " + patientId);
-  }
+      const heightInM = height / 100;
+      const bmi = weight / (heightInM * heightInM);
+      const roundedBMI = bmi.toFixed(2);
 
-  function loadPatientData() {
-    const patientId = prompt("Enter Patient ID to load:");
-    if (!patientId) return;
+      let category = "";
+      if (bmi < 18.5) category = "Underweight";
+      else if (bmi < 24.9) category = "Normal weight";
+      else if (bmi < 29.9) category = "Overweight";
+      else category = "Obese";
 
-    const patients = JSON.parse(localStorage.getItem("patients") || "{}");
-    const data = patients[patientId];
-
-    if (!data) {
-      alert("? No data found for Patient ID: " + patientId);
-      return;
+      bmiField.value = roundedBMI;
+      categoryField.value = category;
     }
 
-    const form = document.getElementById("pacForm");
-    Object.keys(data).forEach(key => {
-      const field = form.elements[key];
-      if (!field) return;
+    document.getElementById("weight").addEventListener("input", calculateBMI);
+    document.getElementById("height").addEventListener("input", calculateBMI);
 
-      if (field.type === "checkbox" || field.type === "radio") {
+    function savePatientData() {
+      const form = document.getElementById("pacForm");
+      const formData = new FormData(form);
+      const patientId = formData.get("patientId")?.trim();
+
+      if (!/^\d{6}$/.test(patientId)) {
+        alert("Please enter a valid 6-digit Patient ID.");
+        return;
+      }
+
+      const data = {};
+      formData.forEach((value, key) => {
+        if (data[key]) {
+          if (!Array.isArray(data[key])) data[key] = [data[key]];
+          data[key].push(value);
+        } else {
+          data[key] = value;
+        }
+      });
+
+      const existing = JSON.parse(localStorage.getItem("patients") || "{}");
+      existing[patientId] = data;
+      localStorage.setItem("patients", JSON.stringify(existing));
+      alert("Data saved for Patient ID: " + patientId);
+    }
+
+    function loadPatientData() {
+      const patientId = prompt("Enter Patient ID to load:");
+      if (!patientId) return;
+
+      const patients = JSON.parse(localStorage.getItem("patients") || "{}");
+      const data = patients[patientId];
+
+      if (!data) {
+        alert("No data found for Patient ID: " + patientId);
+        return;
+      }
+
+      const form = document.getElementById("pacForm");
+      Object.keys(data).forEach(key => {
         const fields = form.querySelectorAll(`[name="${key}"]`);
-        fields.forEach(f => {
-          f.checked = Array.isArray(data[key]) ? data[key].includes(f.value) : data[key] === f.value;
-        });
-      } else {
-        field.value = data[key];
-      }
-    });
-    alert("?? Loaded data for Patient ID: " + patientId);
-  }
-</script>
+        if (fields.length > 1) {
+          fields.forEach(field => {
+            field.checked = Array.isArray(data[key])
+              ? data[key].includes(field.value)
+              : data[key] === field.value;
+          });
+        } else {
+          const field = fields[0];
+          if (field) field.value = data[key];
+        }
+      });
 
+      alert("Loaded data for Patient ID: " + patientId);
+    }
+
+    async function generatePDF() {
+      const form = document.getElementById("pacForm");
+      const canvas = await html2canvas(form, { scale: 2 });
+      const imageData = canvas.toDataURL("image/png");
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgProps = pdf.getImageProperties(imageData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      pdf.addImage(imageData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save("pre-anesthesia-checklist.pdf");
+    }
+  </script>
 </body>
 </html>
