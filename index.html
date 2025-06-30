@@ -182,10 +182,25 @@
   </form>
 
   <script>
-    function generatePDF() {
-      alert("PDF export will be implemented in the next step.");
-      // You can integrate jsPDF here as the next phase.
-    }
+async function generatePDF() {
+  const form = document.getElementById("pacForm");
+  
+  // Use html2canvas to take screenshot of form
+  const canvas = await html2canvas(form, { scale: 2 });
+  const imageData = canvas.toDataURL("image/png");
+
+  // Create jsPDF instance
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF("p", "mm", "a4");
+  
+  const imgProps = pdf.getImageProperties(imageData);
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+  pdf.addImage(imageData, "PNG", 0, 0, pdfWidth, pdfHeight);
+  pdf.save("pre-anesthesia-checklist.pdf");
+}
+
   </script>
 
 </body>
