@@ -34,7 +34,7 @@ app.post("/api/pac", async (req, res) => {
     }
 });
 
-app.listen(3000, () => console.log("Server running on http://localhost:3000")
+app.listen(3000, () => console.log("Server running on http://192.168.1.45:3000")
            app.get('/', (req, res) => {
   res.send('PAC Server is running. Use POST /submit to send data.');
 });
