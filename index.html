@@ -201,122 +201,140 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <!-- Script -->
-  <script>
-    function calculateBMI() {
-      const weight = parseFloat(document.getElementById("weight").value);
-      const height = parseFloat(document.getElementById("height").value);
-      const bmiField = document.getElementById("bmi");
-      const categoryField = document.getElementById("bmiCategory");
+<script>
+  function calculateBMI() {
+    const weight = parseFloat(document.getElementById("weight").value);
+    const height = parseFloat(document.getElementById("height").value);
+    const bmiField = document.getElementById("bmi");
+    const categoryField = document.getElementById("bmiCategory");
 
-      if (!weight || !height || weight <= 0 || height <= 0) {
-        bmiField.value = "";
-        categoryField.value = "";
-        return;
+    if (!weight || !height || weight <= 0 || height <= 0) {
+      bmiField.value = "";
+      categoryField.value = "";
+      return;
+    }
+
+    const heightInM = height / 100;
+    const bmi = weight / (heightInM * heightInM);
+    const roundedBMI = bmi.toFixed(2);
+
+    let category = "";
+    if (bmi < 18.5) category = "Underweight";
+    else if (bmi < 24.9) category = "Normal weight";
+    else if (bmi < 29.9) category = "Overweight";
+    else category = "Obese";
+
+    bmiField.value = roundedBMI;
+    categoryField.value = category;
+  }
+
+  document.getElementById("weight").addEventListener("input", calculateBMI);
+  document.getElementById("height").addEventListener("input", calculateBMI);
+
+  function savePatientData() {
+    const form = document.getElementById("pacForm");
+    const formData = new FormData(form);
+    const patientId = formData.get("patientId")?.trim();
+
+    if (!/^\d{6}$/.test(patientId)) {
+      alert("Please enter a valid 6-digit Patient ID.");
+      return;
+    }
+
+    const data = {};
+    formData.forEach((value, key) => {
+      if (data[key]) {
+        if (!Array.isArray(data[key])) data[key] = [data[key]];
+        data[key].push(value);
+      } else {
+        data[key] = value;
       }
+    });
 
-      const heightInM = height / 100;
-      const bmi = weight / (heightInM * heightInM);
-      const roundedBMI = bmi.toFixed(2);
+    const existing = JSON.parse(localStorage.getItem("patients") || "{}");
+    existing[patientId] = data;
+    localStorage.setItem("patients", JSON.stringify(existing));
+    alert("Data saved for Patient ID: " + patientId);
+  }
 
-      let category = "";
-      if (bmi < 18.5) category = "Underweight";
-      else if (bmi < 24.9) category = "Normal weight";
-      else if (bmi < 29.9) category = "Overweight";
-      else category = "Obese";
+  function loadPatientData() {
+    const patientId = prompt("Enter Patient ID to load:");
+    if (!patientId) return;
 
-      bmiField.value = roundedBMI;
-      categoryField.value = category;
+    const patients = JSON.parse(localStorage.getItem("patients") || "{}");
+    const data = patients[patientId];
+
+    if (!data) {
+      alert("No data found for Patient ID: " + patientId);
+      return;
     }
 
-    document.getElementById("weight").addEventListener("input", calculateBMI);
-    document.getElementById("height").addEventListener("input", calculateBMI);
-
-    function savePatientData() {
-      const form = document.getElementById("pacForm");
-      const formData = new FormData(form);
-      const patientId = formData.get("patientId")?.trim();
-
-      if (!/^\d{6}$/.test(patientId)) {
-        alert("Please enter a valid 6-digit Patient ID.");
-        return;
+    const form = document.getElementById("pacForm");
+    Object.keys(data).forEach(key => {
+      const fields = form.querySelectorAll(`[name="${key}"]`);
+      if (fields.length > 1) {
+        fields.forEach(field => {
+          field.checked = Array.isArray(data[key])
+            ? data[key].includes(field.value)
+            : data[key] === field.value;
+        });
+      } else {
+        const field = fields[0];
+        if (field) field.value = data[key];
       }
+    });
 
-    function submitForm(event) {
-  event.preventDefault(); // prevent page reload
+    alert("Loaded data for Patient ID: " + patientId);
+  }
 
-  const form = document.getElementById("pacForm");
-  const formData = new FormData(form);
-  const jsonData = {};
+  async function generatePDF() {
+    const form = document.getElementById("pacForm");
+    const canvas = await html2canvas(form, { scale: 2 });
+    const imageData = canvas.toDataURL("image/png");
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF("p", "mm", "a4");
+    const imgProps = pdf.getImageProperties(imageData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    pdf.addImage(imageData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save("pre-anesthesia-checklist.pdf");
+  }
 
-  formData.forEach((value, key) => {
-    if (jsonData[key]) {
-      if (!Array.isArray(jsonData[key])) jsonData[key] = [jsonData[key]];
-      jsonData[key].push(value);
-    } else {
-      jsonData[key] = value;
-    }
-  });
+  // ? THIS should be outside and last
+  function submitForm(event) {
+    event.preventDefault();
 
-  fetch('http://localhost:3000/submit', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(jsonData)
-  })
-  .then(response => response.json())
-  .then(data => {
-    alert("Data submitted successfully.");
-    console.log(data);
-  })
-  .catch(error => {
-    console.error('Error submitting form:', error);
-    alert("Failed to submit data.");
-  });
-}
+    const form = document.getElementById("pacForm");
+    const formData = new FormData(form);
+    const jsonData = {};
 
-    function loadPatientData() {
-      const patientId = prompt("Enter Patient ID to load:");
-      if (!patientId) return;
-
-      const patients = JSON.parse(localStorage.getItem("patients") || "{}");
-      const data = patients[patientId];
-
-      if (!data) {
-        alert("No data found for Patient ID: " + patientId);
-        return;
+    formData.forEach((value, key) => {
+      if (jsonData[key]) {
+        if (!Array.isArray(jsonData[key])) jsonData[key] = [jsonData[key]];
+        jsonData[key].push(value);
+      } else {
+        jsonData[key] = value;
       }
+    });
 
-      const form = document.getElementById("pacForm");
-      Object.keys(data).forEach(key => {
-        const fields = form.querySelectorAll(`[name="${key}"]`);
-        if (fields.length > 1) {
-          fields.forEach(field => {
-            field.checked = Array.isArray(data[key])
-              ? data[key].includes(field.value)
-              : data[key] === field.value;
-          });
-        } else {
-          const field = fields[0];
-          if (field) field.value = data[key];
-        }
-      });
+    fetch('http://localhost:3000/submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(jsonData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert("Data submitted successfully.");
+      console.log(data);
+    })
+    .catch(error => {
+      console.error('Error submitting form:', error);
+      alert("Failed to submit data.");
+    });
+  }
+</script>
 
-      alert("Loaded data for Patient ID: " + patientId);
-    }
-
-    async function generatePDF() {
-      const form = document.getElementById("pacForm");
-      const canvas = await html2canvas(form, { scale: 2 });
-      const imageData = canvas.toDataURL("image/png");
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF("p", "mm", "a4");
-      const imgProps = pdf.getImageProperties(imageData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      pdf.addImage(imageData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save("pre-anesthesia-checklist.pdf");
-    }
-  </script>
 </body>
 </html>
