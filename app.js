@@ -34,4 +34,5 @@ app.post("/api/pac", async (req, res) => {
     }
 });
 
-app.listen(1433, () => console.log("Server running on http://192.168.1.45:1433"));
+app.listen(3000, () => console.log("Server running on http://localhost:3000"));
+
