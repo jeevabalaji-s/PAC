@@ -10,7 +10,7 @@ app.use(bodyParser.json());
 const config = {
     user: "essl",
     password: "essl",
-    server: "localhost", // e.g., localhost
+    server: "192.168.1.45", // e.g., localhost
     database: "mercy",
     options: {
         encrypt: false,
