@@ -1,42 +1,58 @@
-const express = require("express");
-const sql = require("mssql");
-const cors = require("cors");
-const bodyParser = require("body-parser");
+// app.js
+const https = require('https');
+const fs = require('fs');
+const express = require('express');
+const bodyParser = require('body-parser');
+const sql = require('mssql');
+const cors = require('cors');
 
 const app = express();
-app.use(cors());
 app.use(bodyParser.json());
+app.use(cors()); // allow requests from different origins
 
-const config = {
-    user: "essl",
-    password: "essl",
-    server: "192.168.1.45", // e.g., localhost
-    database: "mercy",
-    options: {
-        encrypt: false,
-        trustServerCertificate: true
-    }
+// MSSQL config
+const dbConfig = {
+  user: 'essl',
+  password: 'essl',
+  server: '192.168.1.45',
+  database: 'Mercy',
+  options: {
+    encrypt: false,
+    trustServerCertificate: true
+  }
 };
 
-// Insert route
-app.post("/api/pac", async (req, res) => {
-    try {
-        await sql.connect(config);
-        const { patientId, name, age, gender, bmi } = req.body;
+// API endpoint
+app.post('/submit', async (req, res) => {
+  try {
+    await sql.connect(dbConfig);
+    const request = new sql.Request();
 
-        const result = await sql.query`INSERT INTO PACData (PatientID, Name, Age, Gender, BMI)
-                                       VALUES (${patientId}, ${name}, ${age}, ${gender}, ${bmi})`;
+    // Example insert – adjust according to your DB schema
+    await request.query(`
+      INSERT INTO PACData (PatientID, Name, Age, Gender)
+      VALUES (
+        '${req.body.patientId}',
+        '${req.body.name}',
+        ${req.body.age},
+        '${req.body.gender}'
+      )
+    `);
 
-        res.status(200).send("Inserted Successfully");
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Error saving data");
-    }
+    res.json({ message: 'Data inserted successfully' });
+  } catch (err) {
+    console.error('DB error:', err);
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
-app.listen(3000, () => console.log("Server running on http://192.168.1.45:3000")
-           app.get('/', (req, res) => {
-  res.send('PAC Server is running. Use POST /submit to send data.');
+// HTTPS certificate (self-signed)
+const httpsOptions = {
+  key: fs.readFileSync('key.pem'),
+  cert: fs.readFileSync('cert.pem')
+};
+
+// Start server
+https.createServer(httpsOptions, app).listen(3000, () => {
+  console.log('HTTPS Server running on https://192.168.1.45:3000');
 });
-
-
