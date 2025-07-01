@@ -317,23 +317,23 @@
       }
     });
 
-   fetch('http://192.168.1.45:3000/submit', { method: 'POST', ... })
+  fetch('http://192.168.1.45:3000/submit', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify(jsonData)
+})
+.then(response => response.json())
+.then(data => {
+  alert("Data submitted successfully.");
+  console.log(data);
+})
+.catch(error => {
+  console.error('Error submitting form:', error);
+  alert("Failed to submit data.");
+});
 
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(jsonData)
-    })
-    .then(response => response.json())
-    .then(data => {
-      alert("Data submitted successfully.");
-      console.log(data);
-    })
-    .catch(error => {
-      console.error('Error submitting form:', error);
-      alert("Failed to submit data.");
-    });
   }
 </script>
 
