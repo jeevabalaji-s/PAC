@@ -59,7 +59,8 @@
 
   <h2>Pre-Anesthesia Checklist (PAC)</h2>
 
-  <form id="pacForm">
+  <form id="pacForm" onsubmit="submitForm(event)">
+
     <!-- Patient Details -->
     <div class="section">
       <h3>Patient Details</h3>
@@ -239,21 +240,39 @@
         return;
       }
 
-      const data = {};
-      formData.forEach((value, key) => {
-        if (data[key]) {
-          if (!Array.isArray(data[key])) data[key] = [data[key]];
-          data[key].push(value);
-        } else {
-          data[key] = value;
-        }
-      });
+    function submitForm(event) {
+  event.preventDefault(); // prevent page reload
 
-      const existing = JSON.parse(localStorage.getItem("patients") || "{}");
-      existing[patientId] = data;
-      localStorage.setItem("patients", JSON.stringify(existing));
-      alert("Data saved for Patient ID: " + patientId);
+  const form = document.getElementById("pacForm");
+  const formData = new FormData(form);
+  const jsonData = {};
+
+  formData.forEach((value, key) => {
+    if (jsonData[key]) {
+      if (!Array.isArray(jsonData[key])) jsonData[key] = [jsonData[key]];
+      jsonData[key].push(value);
+    } else {
+      jsonData[key] = value;
     }
+  });
+
+  fetch('http://localhost:3000/submit', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(jsonData)
+  })
+  .then(response => response.json())
+  .then(data => {
+    alert("Data submitted successfully.");
+    console.log(data);
+  })
+  .catch(error => {
+    console.error('Error submitting form:', error);
+    alert("Failed to submit data.");
+  });
+}
 
     function loadPatientData() {
       const patientId = prompt("Enter Patient ID to load:");
