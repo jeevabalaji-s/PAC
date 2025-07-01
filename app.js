@@ -8,10 +8,10 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const config = {
-    user: "your_user",
-    password: "your_password",
-    server: "your_server", // e.g., localhost
-    database: "your_database",
+    user: "essl",
+    password: "essl",
+    server: "localhost", // e.g., localhost
+    database: "mercy",
     options: {
         encrypt: false,
         trustServerCertificate: true
@@ -34,4 +34,4 @@ app.post("/api/pac", async (req, res) => {
     }
 });
 
-app.listen(3000, () => console.log("Server running on http://localhost:3000"));
+app.listen(1433, () => console.log("Server running on http://localhost:1433"));
